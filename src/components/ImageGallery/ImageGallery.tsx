@@ -1,7 +1,14 @@
+
 import ImageCard from '../ImageCard/ImageCard';
 import css from './ImageGallery.module.css';
+import { Image } from '../App/App.types';
 
-export default function ImageGallery({ items, openModal }) {
+type Props = {
+  items: Image[];
+  openModal: (image: Image) => void;
+}
+
+export default function ImageGallery({ items, openModal }: Props) {
   return (
     <section className={css.containerGallery}>
       <ul className={css.gallery}>

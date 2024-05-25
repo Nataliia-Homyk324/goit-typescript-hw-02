@@ -1,6 +1,15 @@
+import React from 'react';
 import css from './ImageCard.module.css';
+import { Image } from '../App/App.types';
 
-export default function ImageCard({ openImage, imageItem }) {
+
+
+interface ImageCardProps {
+  openImage: (image: Image) => void;
+  imageItem: Image;
+}
+
+const ImageCard: React.FC<ImageCardProps> = ({ openImage, imageItem }) => {
   return (
     <div className={css.galleryThumb}>
       <img
@@ -19,7 +28,7 @@ export default function ImageCard({ openImage, imageItem }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {imageItem.name}
+            {imageItem.user.name}
           </a>
         </p>
         <p className={css.textPhoto}>
@@ -30,3 +39,5 @@ export default function ImageCard({ openImage, imageItem }) {
     </div>
   );
 }
+
+export default ImageCard;

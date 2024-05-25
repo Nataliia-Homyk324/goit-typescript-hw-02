@@ -10,22 +10,31 @@ import toast, { Toaster } from 'react-hot-toast';
 import LoadMoreBtn from '../LoadMoreBtn/LoadMoreBtn';
 
 import ImageModal from '../ImageModal/ImageModal';
+import { Image } from './App.types';
+
+ 
+
+interface ImageData {
+  total_pages: number;
+  total: number;
+  results: Image[];
+}
 
 export default function App() {
-  const [images, setImages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [page, setPage] = useState(1);
-  const [query, setQuery] = useState('');
+  const [images, setImages] = useState<Image[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [query, setQuery] = useState<string>('');
 
-  const [selectedImage, setSelectedImage] = useState(null); // Стан для зберігання вибраного зображення для модального вікна
-  const [modalIsOpen, setModalIsOpen] = useState(false); // Стан для відображення/приховування модального вікна
+  const [selectedImage, setSelectedImage] = useState<Image | null>(null); // Стан для зберігання вибраного зображення для модального вікна
+  const [modalIsOpen, setModalIsOpen] = useState<boolean>(false); // Стан для відображення/приховування модального вікна
 
   useEffect(() => {
     Modal.setAppElement('#root');
   }, []);
 
-  const handleSearch = newQuery => {
+  const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
     setPage(1);
     setImages([]); // Reset the Gallery when performing a new search
@@ -33,7 +42,7 @@ export default function App() {
   };
 
   const handleLoadMore = () => {
-    setPage(page + 1);
+    setPage(prevPage => prevPage + 1);
   };
 
   useEffect(() => {
@@ -41,21 +50,18 @@ export default function App() {
       return;
     }
 
-    async function getImages() {
+    const getImages = async () => {
       try {
         setError(false);
         setIsLoading(true);
 
-        const data = await fetchImages(query, page);
+        const data: ImageData = await fetchImages(query, page);
 
-        setImages(prevImages => {
-          return [...prevImages, ...data.results];
-        });
+        setImages(prevImages => [...prevImages, ...data.results]);
 
         if (!data.total) {
           toast(
-            'Sorry, we have not found the photos. ',
-
+            'Sorry, we have not found the photos.',
             {
               duration: 5000,
             }
@@ -68,15 +74,16 @@ export default function App() {
       } finally {
         setIsLoading(false);
       }
-    }
+    };
 
     getImages();
   }, [page, query]);
 
-  const openModal = image => {
+  const openModal = (image: Image) => {
     setSelectedImage(image);
     setModalIsOpen(true);
   };
+
   const closeModal = () => setModalIsOpen(false);
 
   return (
@@ -84,21 +91,10 @@ export default function App() {
       <SearchBar onSearch={handleSearch} />
       <Toaster />
       {error && <ErrorMessage />}
-
-      {images.length > 0 && (
-        <ImageGallery items={images} openModal={openModal} />
-      )}
-
+      {images.length > 0 && <ImageGallery items={images} openModal={openModal} />}
       {isLoading && <Loader />}
-
-      {images.length > 9 && !isLoading && (
-        <LoadMoreBtn onClick={handleLoadMore} />
-      )}
-      <ImageModal
-        isOpen={modalIsOpen}
-        image={selectedImage}
-        onCloseModal={closeModal}
-      />
+      {images.length > 9 && !isLoading && <LoadMoreBtn onClick={handleLoadMore} />}
+      <ImageModal isOpen={modalIsOpen} image={selectedImage} onCloseModal={closeModal} />
     </div>
   );
 }
